@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using Kata.Refactor.After;
 using Kata.Refactor.Before;
 using Moq;
 using UnitTest.FakeDependency;
@@ -14,6 +15,7 @@ namespace UnitTest
         public void ShouldThrowArgumentNullExceptionOnceMarksIsNullAndFilterGoldenKeys()
         {
             var keysFilter = new KeysFilter();
+            var newKeysFilter = new NewKeysFilter();
 
             var fakeSessionService = new FakeSessionServiceForGoldenKey();
             
@@ -21,12 +23,14 @@ namespace UnitTest
                 .SetValue(keysFilter, fakeSessionService);
             
             Assert.Throws<ArgumentNullException>(() => keysFilter.Filter(null, true));
+            Assert.Throws<ArgumentNullException>(() => newKeysFilter.Filter(null));
         }
         
         [Fact]
         public void ShouldThrowArgumentNullExceptionOnceMarksIsNullAndFilterNonGoldenKeys()
         {
             var keysFilter = new KeysFilter();
+            var newKeysFilter = new NewKeysFilter();
             
             var fakeSessionService = new FakeSessionServiceForNonGoldenKey();
             
@@ -34,16 +38,20 @@ namespace UnitTest
                 .SetValue(keysFilter, fakeSessionService);
 
             Assert.Throws<ArgumentNullException>(() => keysFilter.Filter(null, false));
+            Assert.Throws<ArgumentNullException>(() => newKeysFilter.Filter(null));
         }
 
         [Fact]
         public void ShouldReturnEmptyKeysListWhenMarksAreNotEmpty()
         {
             var keysFilter = new KeysFilter();
+            var newKeysFilter = new NewKeysFilter();
 
             var result = keysFilter.Filter(new List<string> {It.IsAny<string>()}, It.IsAny<bool>());
+            var newResult = newKeysFilter.Filter(new List<string> {It.IsAny<string>()});
             
             Assert.Empty(result);
+            Assert.Empty(newResult);
         }
 
         [Fact]
@@ -52,12 +60,16 @@ namespace UnitTest
             var keysFilter = new KeysFilter();
             var fakeSessionService = new FakeSessionServiceForGoldenKey();
             
+            var newKeysFilter = new NewKeysFilter();
+            
             keysFilter.GetType().GetProperty("SessionService", BindingFlags.NonPublic | BindingFlags.Instance)
                 .SetValue(keysFilter, fakeSessionService);
             
             var result = keysFilter.Filter(new List<string>(), It.IsAny<bool>());
+            var newResult = newKeysFilter.Filter(new List<string>());
             
-            Assert.Equal(new List<string> (), result);
+            Assert.Empty(result);
+            Assert.Empty(newResult);
         }
     }
 }
